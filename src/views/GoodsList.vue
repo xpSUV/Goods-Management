@@ -116,7 +116,7 @@ import { ElMessage, ElMessageBox, ElNotification } from "element-plus";
 
 // 请求数据
 function loadData(state) {
-  // 注：服务端已处理相关分页数据
+  // 注：服务端 已处理相关分页数据
   const params = {
     pageNumber: state.currentPage, //当前页码值（页数）
     pageSize: state.pageSize, //一页显示多少条数据
