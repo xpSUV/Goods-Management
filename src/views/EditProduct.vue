@@ -90,7 +90,7 @@ function useLoadEditData(state, editor) {
 // 完成商品编辑函数
 function useEditData(state, validateForm, editor, emit) {
   const submitEdit = () => {
-    // 富文本编辑器中的内容数据需要额外添加  应为他不能用v-model
+    // 富文本编辑器中的 内容数据 需要额外添加  应为他不能用v-model
     state.goodsForm.goodsDetail =
       editor.value.getText().replace(/(\r\n|\n|\r)/gm, "<br />") !== "<br />"
         ? editor.value.getHTML()
