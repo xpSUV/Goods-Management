@@ -65,6 +65,7 @@ const routes = [
         ]
     },
     {
+        // 设置不存在的空地址 所对应展示的组件！！！！！！！！！！！！！！！！！11
         path: '/:pathMatch(.*)*',
         name: 'NotFound',
         component: () => import("../views/NotFound.vue")

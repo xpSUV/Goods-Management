@@ -1,16 +1,27 @@
 <template>
-  <el-container class="el-container">
+  <el-container class="el-containers">
     <el-header>
       <div class="header-div">
         <img src="../../assets/logo.png" alt="" />
         <span>
           <!-- router-link最终会渲染成a标签  所以修改样式时修改 a标签的样式就行了 -->
           <router-link to="/">后台管理系统</router-link>
+
           <el-button
             style="float: right; margin-top: 10px"
             type="info"
             @click="logoout"
             >退出</el-button
+          >
+          <span
+            style="
+              float: right;
+              font-size: 16px;
+              font-weight: 700;
+              margin-top: 19px;
+              margin-right: 20px;
+            "
+            >当前用户：{{ userName }}</span
           >
         </span>
       </div>
@@ -53,9 +64,15 @@
           </el-submenu>
         </el-menu>
       </el-aside>
-      <el-main>
-        <router-view></router-view>
-      </el-main>
+      <el-container>
+        <el-main>
+          <router-view></router-view>
+        </el-main>
+        <el-footer style="height: 40px"
+          ><strong>xpsuv</strong> --1942443098@qq.com--
+          <strong> v1.0.0</strong></el-footer
+        >
+      </el-container>
     </el-container>
   </el-container>
 </template>
@@ -68,18 +85,20 @@ import router from "../../router";
 function useLoadMenuData(state) {
   axios.get("/menus").then((res) => {
     state.menusData = res.data;
-    // console.log(res.data);
+    console.log(res.data);
   });
 }
 export default {
   setup() {
     const state = reactive({
+      userName: "",
       menusData: [],
       isCollapse: false,
       activePath: "",
     });
     onMounted(() => {
       useLoadMenuData(state);
+      state.userName = window.sessionStorage.getItem("userName");
       // 浏览器刷新页面后会继续触发onMounted钩子函数
       state.activePath = window.sessionStorage.getItem("activePath"); //避免浏览器刷新页面丢失所获取的之前处于活跃状态的路径
     });
@@ -116,8 +135,8 @@ export default {
   padding: 0;
 }
 /* 下面的el标签样式为什么都写成类选择器形式 ：这些el标签都会渲染成原生html标签并添加相应的模板样式即例如：class=el-container */
-.el-container {
-  height: 1000px;
+.el-containers {
+  height: 100vh;
 }
 .el-aside {
   transition: width 0.3s;
@@ -130,6 +149,13 @@ export default {
   background-color: #373d41;
   color: #fff;
   font-size: 20px;
+}
+.el-footer {
+  text-align: center;
+  line-height: 40px;
+  background-color: #373d41;
+  color: #fff;
+  font-size: 14px;
 }
 a {
   text-decoration: none;

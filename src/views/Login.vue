@@ -37,6 +37,7 @@ import { reactive, ref, toRefs } from "@vue/reactivity";
 import axios from "axios";
 import router from "../router";
 import { ElMessage } from "element-plus";
+import { computed } from "@vue/runtime-core";
 //重置按钮
 function useRestLog(loginFormRef) {
   const resetLoginForm = () => {
@@ -66,6 +67,7 @@ function useLogin(state, loginFormRef) {
         ElMessage.success("登陆成功");
         // 把服务端返回的token数据存储到浏览器窗口的sessionStorage中 存放格式:键值对  浏览器关闭该网页后销毁
         // token数据:一般登录时服务端返回的  用来用户访问其他系统API（如添加商品等）时发送给服务端 服务端进行token校验  校验成功则可访问
+        window.sessionStorage.setItem("userName", state.loginForm.username);
         window.sessionStorage.setItem("token", res.data.myToken);
         router.push("/"); //登录成功并保存token后进行路由跳转  由于vue3 compositionAPI没有this与$
         // 所以此处不再使用 this.$router 而是直接采用import导入 router 拿到路由实例 然后再使用其方法push进行路由跳转
@@ -86,6 +88,7 @@ export default {
         username: "",
         password: "",
       },
+      // xxk: computed(() => loginForm.username = "xxk"),
     });
 
     const loginFormRules = {

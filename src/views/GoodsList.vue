@@ -23,12 +23,12 @@
         <el-button type="primary" @click="addGoodsInfo()">添加</el-button>
       </el-col>
     </el-row>
-
-    <el-table :data="tableData" style="width: 100%">
-      <!-- 下面的el-table-column 通过slot的方式进行数据填充  只不过这是用于自定义列模板的表格 即自定义表格的每列的模板  
+    <Skeleton :loading="loads">
+      <el-table :data="tableData" style="width: 100%">
+        <!-- 下面的el-table-column 通过slot的方式进行数据填充  只不过这是用于自定义列模板的表格 即自定义表格的每列的模板  
       常规（不自定义表格列使用默认的）的是在el-table绑定数据对象后 直接在el-table-column设置prop对应数据对象键即可获得数据-->
-      <el-table-column label="编号" width="180">
-        <!-- 作用域插槽 此处是先将tableData数据绑定到插槽中了:data="tableData" 
+        <el-table-column label="编号" width="180">
+          <!-- 作用域插槽 此处是先将tableData数据绑定到插槽中了:data="tableData" 
       然后通过作用域插槽#default="scope"  获取到所绑定的数据到scope
       通过内部封装的一些scope的方法row、column、$index可以分别获取到每一行的数据、每一列的数据、及每一行的index
       此处的 每一行数据 就是 tableData数组 数据中的每一条数据例如：{
@@ -39,50 +39,52 @@
         同理 列 就是 每一条数据对应的 同名的属性的合集对象
         每一行的index就是 每一条数据在 tableData数组的下标
         element-plus中进行以上这些的封装-->
-        <template #default="scope">
-          <span style="margin-left: 10px">{{ scope.row.id }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="商品名称" width="180">
-        <template #default="scope">
-          <el-popover effect="light" trigger="hover" placement="top">
-            <template #default>
-              <p>商品名称: {{ scope.row.title }}</p>
-              <p>单价: {{ scope.row.price }}</p>
-            </template>
-            <template #reference>
-              <div class="name-wrapper">
-                <el-tag size="medium">{{ scope.row.title }}</el-tag>
-              </div>
-            </template>
-          </el-popover>
-        </template>
-      </el-table-column>
+          <template #default="scope">
+            <span style="margin-left: 10px">{{ scope.row.id }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="商品名称" width="180">
+          <template #default="scope">
+            <el-popover effect="light" trigger="hover" placement="top">
+              <template #default>
+                <p>商品名称: {{ scope.row.title }}</p>
+                <p>单价: {{ scope.row.price }}</p>
+              </template>
+              <template #reference>
+                <div class="name-wrapper">
+                  <el-tag size="medium">{{ scope.row.title }}</el-tag>
+                </div>
+              </template>
+            </el-popover>
+          </template>
+        </el-table-column>
 
-      <el-table-column label="商品图片" width="180">
-        <template #default="scope">
-          <span style="margin-left: 10px">
-            <!--  url就是配置的基本路径  thumbnail就是当初添加商品时axios发送数据中的图片链接的后面路径   -->
-            <!-- 在addproduct中：params中发送数据的设置thumbnail: state.goodsForm.coverImg, -->
-            <img class="imgSet" :src="url + scope.row.thumbnail" alt="" />
-          </span>
-        </template>
-      </el-table-column>
+        <el-table-column label="商品图片" width="180">
+          <template #default="scope">
+            <span style="margin-left: 10px">
+              <!--  url就是配置的基本路径  thumbnail就是当初添加商品时axios发送数据中的图片链接的后面路径   -->
+              <!-- 在addproduct中：params中发送数据的设置thumbnail: state.goodsForm.coverImg, -->
+              <img class="imgSet" :src="url + scope.row.thumbnail" alt="" />
+            </span>
+          </template>
+        </el-table-column>
 
-      <el-table-column label="操作">
-        <template #default="scope">
-          <el-button size="mini" @click="handleEdit(scope.$index, scope.row)"
-            >编辑</el-button
-          >
-          <el-button
-            size="mini"
-            type="danger"
-            @click="handleDelete(scope.$index, scope.row)"
-            >删除</el-button
-          >
-        </template>
-      </el-table-column>
-    </el-table>
+        <el-table-column label="操作">
+          <template #default="scope">
+            <el-button size="mini" @click="handleEdit(scope.$index, scope.row)"
+              >编辑</el-button
+            >
+            <el-button
+              size="mini"
+              type="danger"
+              @click="handleDelete(scope.$index, scope.row)"
+              >删除</el-button
+            >
+          </template>
+        </el-table-column>
+      </el-table>
+    </Skeleton>
+
     <el-pagination
       background
       layout="prev, pager, next"
@@ -93,6 +95,7 @@
     >
     </el-pagination>
   </el-card>
+
   <AddProduct
     :centerDialogVisible="centerDialogVisible"
     @onCloseDialog="closeDialogVisible"
@@ -113,6 +116,7 @@ import axios from "axios"; // npm install axios --save
 import AddProduct from "./AddProduct.vue";
 import EditProduct from "./EditProduct.vue";
 import { ElMessage, ElMessageBox, ElNotification } from "element-plus";
+import Skeleton from "../components/Skeleton/skeleton.vue";
 
 // 请求数据
 function loadData(state) {
@@ -123,10 +127,15 @@ function loadData(state) {
     search: state.searchContent, //如果没有搜索条件则·服务端接收该数据是空字符串  则默认全部数据返回   有则进行select
   };
   // 应为设置了基础路径在.env.development中  所以此处网络请求可以直接省略基本路径
-  axios.get("/goods", { params }).then((res) => {
-    state.tableData = res.data.list; //对应请求页码值上的数据 更新
-    state.total = res.data.totalCount; //总的记录数（数据条数） 更新
-  });
+  setTimeout(() => {
+    //邪教做法
+    axios.get("/goods", { params }).then((res) => {
+      state.tableData = res.data.list; //对应请求页码值上的数据 更新
+      state.total = res.data.totalCount; //总的记录数（数据条数） 更新
+
+      state.loads = false;
+    });
+  }, 700);
 }
 
 // 编辑商品信息
@@ -212,12 +221,15 @@ export default {
   components: {
     AddProduct,
     EditProduct,
+    Skeleton,
   },
   setup() {
     const state = reactive({
       tableData: [],
       centerDialogVisible: false, //控制添加商品窗口的显示与隐藏
+
       editDialogVisible: false, //控制编辑商品窗口的显示与隐藏
+      loads: true,
       total: 0,
       pageSize: 3,
       currentPage: 1,
@@ -278,6 +290,9 @@ export default {
 </script>
 
 <style>
+.el-main {
+  height: 600px;
+}
 .imgSet {
   width: 180px;
   height: 180px;
